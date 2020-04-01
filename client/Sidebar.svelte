@@ -185,22 +185,56 @@ let roomList = [];
 
 let message = ''
 
-const video_player = document.getElementById('showmedia_video_box_wide');
+
 
 setInterval(() => {
     // server keep alive ping
     fetch(process.env.API_SERVER_URL)
 }, 20 * 60 * 1000)
 
-$: video_player.style.position =  fullscreen ? 'fixed' : '';
-$: video_player.style.zIndex =  fullscreen ? '200' : '';
-$: video_player.style.left =  fullscreen ? '0' : '';
-$: video_player.style.right =  fullscreen ? `${sidebarWidth}px` : '';
-$: video_player.style.width =  fullscreen ? 'auto' : '';
-$: video_player.style.height =  fullscreen ? 'auto' : '';
-$: video_player.style.top =  fullscreen ? '0' : '';
-$: video_player.style.bottom =  fullscreen ? '0' : '';
-$: video_player.style.background =  fullscreen ? 'black' : '';
+
+showmedia_video_player {
+    position: relative;
+    padding-bottom: ; /* 16:9, for an aspect ratio of 1:1 change to this value to 100% */ 
+}
+iframe{
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+}
+const background = document.getElementById('showmedia_video_box_wide');
+const video_wrapper = document.getElementById('showmedia_video_player');
+const video_frame = document.getElementById('vilos-player');
+
+$: background.style.position = fullscreen ? 'fixed' : '';
+$: background.style.top = fullscreen ? '0' : '';
+$: background.style.right = fullscreen ? '300px' : '';
+$: background.style.left = fullscreen ? '0' : '';
+$: background.style.bottom = fullscreen ? '0' : '';
+$: background.style.background = fullscreen ? 'black' : '';
+$: background.style.width = fullscreen ? 'auto' : '';
+$: background.style.height = fullscreen ? 'auto' : '';
+$: background.style.display = fullscreen ? 'flex' : '';
+$: background.style.zIndex = fullscreen ? '2000' : '';
+$: background.style.justifyContent = fullscreen ? 'center' : '';
+$: background.style.flexDirection = fullscreen ? 'column' : '';
+$: video_wrapper.style.position =  fullscreen ? 'relative' : '';
+$: video_wrapper.style.zIndex =  fullscreen ? '200' : '';
+$: video_wrapper.style.paddingBottom =  fullscreen ? '56.25%' : '';
+$: video_frame.style.position = fullscreen ? 'absolute' : '';
+$: video_frame.style.top = fullscreen ? '0' : '';
+$: video_frame.style.left = fullscreen ? '0' : '';
+$: video_frame.style.width = fullscreen ? '100%' : '';
+$: video_frame.style.height = fullscreen ? '100%' : '';
+
+// $: video_player.style.right =  fullscreen ? `${sidebarWidth}px` : '';
+// $: video_player.style.width =  fullscreen ? 'auto' : '';
+// $: video_player.style.height =  fullscreen ? 'auto' : '';
+// $: video_player.style.top =  fullscreen ? '0' : '';
+// $: video_player.style.bottom =  fullscreen ? '0' : '';
+// $: video_player.style.background =  fullscreen ? 'black' : '';
 
 $: document.body.style.marginRight = `${sidebarWidth}px`
 
