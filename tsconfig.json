@@ -1,1 +1,13 @@
-{}
+{
+    "compilerOptions": {
+        "strict": false,
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}

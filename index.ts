@@ -1,4 +1,5 @@
-var WebSocketServer = require("ws").Server
+import WebSocket from 'ws'
+
 var http = require("http")
 var express = require("express")
 var app = express()
@@ -24,7 +25,7 @@ const _ = {
       })
       return o
     })
-  } 
+  }
 }
 
 var server = http.createServer(app)
@@ -32,10 +33,74 @@ server.listen(port)
 
 console.log("http server listening on %d", port)
 
-var wss = new WebSocketServer({server: server})
+const wss = new WebSocket.Server({ server: server })
 
-let clients = {}
-let rooms = {}
+type Room = {
+  id: number,
+  hostId: number,
+  pathname: string
+  clients: Client[]
+}
+
+class Client {
+  id: number
+  username: string
+  ws: WebSocket
+  room: Room
+
+  constructor(ws: WebSocket) {
+    this.id = userinc++;
+    this.ws = ws;
+  }
+
+  send(action: string, data?: any) {
+    this.ws.send(JSON.stringify({
+      action, data
+    }))
+  }
+}
+
+type Message = DatalessMessage | TimeupdateMessage | IdentifyMessage | CreateRoomMessage | JoinRoomMessage | MessageMessage
+
+interface DatalessMessage {
+  action: 'get-room-list' | 'play' | 'pause'
+}
+
+interface TimeupdateMessage {
+  action: 'timeupdate'
+  data: {
+    time: number
+  }
+}
+
+interface IdentifyMessage { 
+  action: 'identify'
+  data: {
+    username: string
+  }
+}
+interface CreateRoomMessage { 
+  action: 'create-room'
+  data: {
+    pathname: string
+  }
+}
+interface JoinRoomMessage { 
+  action: 'join-room'
+  data: {
+    id: number
+  }
+}
+interface MessageMessage { 
+  action: 'message'
+  data: {
+    message: string
+  }
+}
+
+
+let clients: {[key:number] : Client } = {}
+let rooms: {[key:number] : Room } = {}
 
 let userinc = 1;
 let roominc = 1;
@@ -82,13 +147,9 @@ function sendMessage(fromId, message) {
 }
 
 function timeUpdate(hostId, time) {
-  let u = clients.get(hostId)
-  let room = rooms.get(u.room)
-
-  room.clients.forEach(cid => {
-    if (cid === hostId) return
-    let c = clients.get(cid)
-    c.ws.send(JSON.stringify({
+  clients[hostId].room.clients.forEach(client => {
+    if (client.id === hostId) return
+    client.ws.send(JSON.stringify({
       action: 'timeupdate',
       data: {time}
     }))
@@ -96,82 +157,67 @@ function timeUpdate(hostId, time) {
 }
 
 function playPause(hostId, eventName) {
-  let u = clients.get(hostId)
-  let room = rooms.get(u.room)
-
-  room.clients.forEach(cid => {
-    if (cid === hostId) return
-    let c = clients.get(cid)
-    c.ws.send(JSON.stringify({
-      action: eventName,
-    }))
+  clients[hostId].room.clients.forEach(client => {
+    if (client.id === hostId) return
+    client.send(eventName)
   })
 }
 
-wss.on('connection', function connection(ws) {
-  const userId = userinc++;
-  clients.set(userId, {
-    room: null,
-    username: null,
-    ws
+wss.on('connection', function connection(ws: WebSocket) {
+  const id = userinc++;
+  const client = new Client(ws)
+
+  clients[client.id] = client;
+  client.send('identify', { id })
+
+  ws.on('close', () => {
+    console.log(`client ${client.username}(${client.id}) disconnected`)  
+    delete clients[client.id]
+
+    const index = client.room.clients.indexOf(client, 0);
+    if (index > -1) {
+      client.room.clients.splice(index, 1);
+    }
+
+    if (client.room.clients.length === 0) {
+      delete rooms[client.room.id]
+    }
   })
 
-  ws.send(JSON.stringify({
-    action: 'identify',
-    data: { userId }
-  }))
-
-  ws.onclose = () => {
-    let u = clients.get(userId)
-    if (u.room) {
-      let r = rooms.get(u.room)
-      r.clients.delete(userId)
-      if (r.clients.length == 0) {
-        rooms.delete(u.room)
-      }
-    }
-    clients.delete(userId)
-  }
-
-  ws.on('message', function incoming(message) {
-    let payload = JSON.parse(message)
-
-    console.log(payload)
+  ws.on('message', function incoming(message: string) {
+    let payload: Message = JSON.parse(message)
 
     switch (payload.action) {
       case 'identify':
-        let u = clients.get(userId)
-        u.username = payload.data.username
-        clients.set(userId, u)
+        let u = clients[id].username = payload.data.username
         break;
       case 'create-room': 
         const roomId = roominc++
-        rooms.set(roomId, {
-          roomId,
-          pathname: payload.action.pathname,
-          hostId: userId,
-          clients: new Set([]),
-        })
+        rooms[roomId] = {
+          id: roomId,
+          pathname: payload.data.pathname,
+          hostId: id,
+          clients: [],
+        }
 
-        joinRoom(userId, roomId)
-        break;
+        return joinRoom(id, roomId)
       case 'join-room':
-        joinRoom(userId, payload.data.roomId)
-        break
+        return joinRoom(id, payload.data.id)
       case 'message':
-        sendMessage(userId, payload.data.message)
-        break;
+        return sendMessage(id, payload.data.message)
       case 'get-room-list':
-        getRoomList(userId)
-        break;
+        return getRoomList(id)
       case 'timeupdate':
-        timeUpdate(userId, payload.data.time)
-        break
+        return timeUpdate(id, payload.data.time)
       case 'play':
       case 'pause':
-        playPause(userId, payload.action)
-        break
-
+        return playPause(id, payload.action)
+      default: assertNever(payload);
     }
   });
 });
+
+
+function assertNever(x: never): never {
+  throw new Error("Unexpected object: " + x);
+}
