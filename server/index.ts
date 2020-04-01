@@ -109,6 +109,9 @@ class Room {
     this.pathname = pathname;
     this.hostId = hostId;
     this.clients = [];
+
+
+    rooms[this.id] = this
   }
 
   add(client: Client) {
@@ -119,6 +122,10 @@ class Room {
     const index = this.clients.indexOf(client, 0);
     if (index > -1) {
       this.clients.splice(index, 1);
+    }
+
+    if (this.clients.length === 0) {
+      delete rooms[this.id];
     }
   }
 
@@ -142,6 +149,8 @@ class Client {
   constructor(ws: WebSocket) {
     this.id = userinc++;
     this.ws = ws;
+
+    clients[this.id] = this
   }
 
   send(action: string, data?: any) {
@@ -210,16 +219,7 @@ wss.on('connection', function connection(ws: WebSocket) {
   ws.on('close', () => {
     console.log(`client ${client.username}(${client.id}) disconnected`)  
     delete clients[client.id]
-    if (client.room) {
-      const index = client.room.clients.indexOf(client, 0);
-      if (index > -1) {
-        client.room.clients.splice(index, 1);
-      }
-
-      if (client.room.clients.length === 0) {
-        delete rooms[client.room.id]
-      }
-    }
+    client.room?.remove(client)    
   })
 
   ws.on('message', function incoming(message: string) {
