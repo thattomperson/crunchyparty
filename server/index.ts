@@ -264,6 +264,7 @@ wss.on('connection', function connection(ws) {
   ws.on('pong', heartbeat);
 });
 
+
 const interval = setInterval(function ping() {
   wss.clients.forEach((ws: WebSocket) => {
     if (ws.isAlive === false) return ws.terminate();

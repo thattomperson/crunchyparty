@@ -11,9 +11,7 @@ import pkg from './package.json';
 const mode = process.env.NODE_ENV;
 const dev = mode === 'development';
 const socketServerUrl = dev ? 'ws://localhost:5000' : 'wss://crunchyparty.herokuapp.com' 
-const apiServerUrl = dev ? 'http://localhost:5000' : 'https://crunchyparty.herokuapp.com/api' 
-
-console.log(process.env)
+const apiServerUrl = dev ? 'http://localhost:5000' : 'https://crunchyparty.herokuapp.com/api'
 
 export default [{
     input: './client',
