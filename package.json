@@ -5,7 +5,7 @@
         "watch:client": "rollup -cw",
         "watch:server": "tsc --watch",
         "watch": "run-p watch:server watch:client",
-        "prebuild": "marked readme.md > public/index.html",
+        "postbuild": "marked readme.md > public/index.html",
         "build:client": "rollup -c",
         "build:server": "tsc",
         "build": "run-p build:client build:server",
