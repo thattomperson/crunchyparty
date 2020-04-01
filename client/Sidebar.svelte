@@ -293,10 +293,6 @@ ws.onopen = () => {
         action: 'identify',
         data: { username }
     }))
-
-    setInterval(() => {
-        ws.ping()
-    }, 30000)
     
     let lasttime = 0;
     let timeupdate = 0;
@@ -313,7 +309,7 @@ ws.onopen = () => {
 
     VILOS_PLAYERJS.on('play', () => host && ws.send(JSON.stringify({action: 'play'})))
     VILOS_PLAYERJS.on('pause', () => host && ws.send(JSON.stringify({action: 'pause'})))
-
+    
     ws.onmessage = (message) => {
         const payload = JSON.parse(message.data)
 

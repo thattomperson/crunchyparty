@@ -255,6 +255,29 @@ wss.on('connection', function connection(ws: WebSocket) {
 });
 
 
+function heartbeat() {
+  this.isAlive = true;
+}
+
+wss.on('connection', function connection(ws) {
+  ws.isAlive = true;
+  ws.on('pong', heartbeat);
+});
+
+const interval = setInterval(function ping() {
+  wss.clients.forEach((ws: WebSocket) => {
+    if (ws.isAlive === false) return ws.terminate();
+ 
+    ws.isAlive = false;
+    ws.ping(() => {});
+  });
+}, 30000);
+ 
+wss.on('close', function close() {
+  clearInterval(interval);
+});
+
+
 function assertNever(x: never): never {
   throw new Error("Unexpected object: " + x);
 }
