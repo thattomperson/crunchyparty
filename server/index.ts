@@ -1,4 +1,5 @@
 import WebSocket, { Server } from 'ws'
+import Sentry from '@sentry/node'
 
 type Message = DatalessMessage | TimeupdateMessage | IdentifyMessage | CreateRoomMessage | JoinRoomMessage | MessageMessage
 type ActionName = DatalessAction | TimeupdateAction | IdentifyAction | CreateRoomAction | JoinRoomAction | MessageAction
@@ -55,7 +56,15 @@ var express = require("express")
 var app = express()
 var port = process.env.PORT || 5000
 
+Sentry.init({ dsn: process.env.SENTRY_DSN });
+app.use(Sentry.Handlers.requestHandler());
+
+
 app.use(express.static(__dirname + "/public"))
+
+app.get('/debug-sentry', function mainHandler(req, res) {
+  throw new Error('My first Sentry error!');
+});
 
 const _ = {
   is(type, obj) {
@@ -239,3 +248,5 @@ wss.on('connection', function connection(ws: WebSocket) {
 function assertNever(x: never): never {
   throw new Error("Unexpected object: " + x);
 }
+
+app.use(Sentry.Handlers.errorHandler());
