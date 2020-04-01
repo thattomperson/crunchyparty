@@ -60,6 +60,7 @@ Sentry.init({
   dsn: process.env.SENTRY_DSN,
   release: process.env.SOURCE_VERSION,
 });
+
 app.use(Sentry.Handlers.requestHandler());
 
 
@@ -136,7 +137,7 @@ class Client {
   id: number
   username: string
   ws: WebSocket
-  room: Room
+  room: Room | null
 
   constructor(ws: WebSocket) {
     this.id = userinc++;
@@ -209,14 +210,15 @@ wss.on('connection', function connection(ws: WebSocket) {
   ws.on('close', () => {
     console.log(`client ${client.username}(${client.id}) disconnected`)  
     delete clients[client.id]
+    if (client.room) {
+      const index = client.room.clients.indexOf(client, 0);
+      if (index > -1) {
+        client.room.clients.splice(index, 1);
+      }
 
-    const index = client.room.clients.indexOf(client, 0);
-    if (index > -1) {
-      client.room.clients.splice(index, 1);
-    }
-
-    if (client.room.clients.length === 0) {
-      delete rooms[client.room.id]
+      if (client.room.clients.length === 0) {
+        delete rooms[client.room.id]
+      }
     }
   })
 
