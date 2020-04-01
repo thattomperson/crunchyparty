@@ -7,7 +7,6 @@ import postcss from 'rollup-plugin-postcss';
 import { terser } from 'rollup-plugin-terser';
 import pkg from './package.json';
 
-
 const mode = process.env.NODE_ENV;
 const dev = mode === 'development';
 const serverUrl = dev ? 'ws://localhost:3000' : 'wss://crunchyparty.herokuapp.com' 
