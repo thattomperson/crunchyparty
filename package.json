@@ -9,7 +9,8 @@
         "build:client": "rollup -c",
         "build:server": "tsc",
         "build": "run-p build:client build:server",
-        "start": "node index.js"
+        "start": "node index.js",
+        "logs": "heroku logs --tail --app crunchyparty"
     },
     "engines": {
         "node": "^12"

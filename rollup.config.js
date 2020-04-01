@@ -9,7 +9,8 @@ import pkg from './package.json';
 
 const mode = process.env.NODE_ENV;
 const dev = mode === 'development';
-const serverUrl = dev ? 'ws://localhost:3000' : 'wss://crunchyparty.herokuapp.com' 
+const socketServerUrl = dev ? 'ws://localhost:5000' : 'wss://crunchyparty.herokuapp.com' 
+const apiServerUrl = dev ? 'http://localhost:5000' : 'https://crunchyparty.herokuapp.com/api' 
 
 export default {
     input: './src',
@@ -24,7 +25,8 @@ export default {
         replace({
             'process.env.NODE_ENV': JSON.stringify(mode),
             'process.env.VERSION': JSON.stringify(pkg.version),
-            'process.env.SERVER_URL': JSON.stringify(serverUrl),
+            'process.env.SOCKET_SERVER_URL': JSON.stringify(socketServerUrl),
+            'process.env.API_SERVER_URL': JSON.stringify(apiServerUrl),
         }),
         !dev && terser({ module: true }),
         pluginSvelte({ dev, emitCss: true }),

@@ -187,6 +187,11 @@ let message = ''
 
 const video_player = document.getElementById('showmedia_video_box_wide');
 
+setInterval(() => {
+    // server keep alive ping
+    fetch(process.env.API_SERVER_URL)
+}, 20 * 60 * 1000)
+
 $: video_player.style.position =  fullscreen ? 'fixed' : '';
 $: video_player.style.zIndex =  fullscreen ? '200' : '';
 $: video_player.style.left =  fullscreen ? '0' : '';
@@ -202,7 +207,7 @@ $: video_player.style.background =  fullscreen ? 'black' : '';
 
 // $: fullscreen ? requestFullScreen.call(document.body) : cancelFullScreen.call(document)
 
-const ws = new WebSocket(process.env.SERVER_URL)
+const ws = new WebSocket(process.env.SOCKET_SERVER_URL)
 let messages = []
 
 function createRoom() {
