@@ -56,7 +56,10 @@ var express = require("express")
 var app = express()
 var port = process.env.PORT || 5000
 
-Sentry.init({ dsn: process.env.SENTRY_DSN });
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  release: process.env.SOURCE_VERSION,
+});
 app.use(Sentry.Handlers.requestHandler());
 
 

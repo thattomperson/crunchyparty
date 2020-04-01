@@ -30,7 +30,8 @@ export default [{
             'process.env.VERSION': JSON.stringify(pkg.version),
             'process.env.SOCKET_SERVER_URL': JSON.stringify(socketServerUrl),
             'process.env.API_SERVER_URL': JSON.stringify(apiServerUrl),
-            'process.env.SENTRY_DSN': process.env.SENTRY_DSN
+            'process.env.SENTRY_DSN': JSON.stringify(process.env.SENTRY_DSN),
+            'process.env.SOURCE_VERSION': JSON.stringify(process.env.SOURCE_VERSION)
         }),
         !dev && terser({ module: true }),
         pluginSvelte({ dev, emitCss: true }),

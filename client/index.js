@@ -1,5 +1,8 @@
 import * as Sentry from '@sentry/browser';
-Sentry.init({ dsn: process.env.SENTRY_DSN });
+Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    release: process.env.SOURCE_VERSION,
+});
 
 import './styles.module.css'
 import Sidebar from './Sidebar.svelte'
