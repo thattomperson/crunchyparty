@@ -1,6 +1,17 @@
-const WebSocket = require('ws');
+var WebSocketServer = require("ws").Server
+var http = require("http")
+var express = require("express")
+var app = express()
+var port = process.env.PORT || 5000
 
-const wss = new WebSocket.Server({ port: process.env.PORT || 3000 });
+app.use(express.static(__dirname + "/public"))
+
+var server = http.createServer(app)
+server.listen(port)
+
+console.log("http server listening on %d", port)
+
+var wss = new WebSocketServer({server: server})
 
 let clients = new Map()
 let rooms = new Map()
