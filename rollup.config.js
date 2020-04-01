@@ -13,6 +13,8 @@ const dev = mode === 'development';
 const socketServerUrl = dev ? 'ws://localhost:5000' : 'wss://crunchyparty.herokuapp.com' 
 const apiServerUrl = dev ? 'http://localhost:5000' : 'https://crunchyparty.herokuapp.com/api' 
 
+console.log(process.env)
+
 export default [{
     input: './client',
     output: {
@@ -28,6 +30,7 @@ export default [{
             'process.env.VERSION': JSON.stringify(pkg.version),
             'process.env.SOCKET_SERVER_URL': JSON.stringify(socketServerUrl),
             'process.env.API_SERVER_URL': JSON.stringify(apiServerUrl),
+            'process.env.SENTRY_DSN': process.env.SENTRY_DSN
         }),
         !dev && terser({ module: true }),
         pluginSvelte({ dev, emitCss: true }),
