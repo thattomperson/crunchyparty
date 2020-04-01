@@ -294,6 +294,9 @@ ws.onopen = () => {
         data: { username }
     }))
 
+    setInterval(() => {
+        ws.ping()
+    }, 30000)
     
     let lasttime = 0;
     let timeupdate = 0;

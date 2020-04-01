@@ -213,6 +213,7 @@ function playPause(client: Client, eventName: string) {
 wss.on('connection', function connection(ws: WebSocket) {
   const client = new Client(ws)
 
+
   clients[client.id] = client;
   client.send('identify', { id: client.id })
 
@@ -220,6 +221,10 @@ wss.on('connection', function connection(ws: WebSocket) {
     console.log(`client ${client.username}(${client.id}) disconnected`)  
     delete clients[client.id]
     client.room?.remove(client)    
+  })
+
+  ws.on('ping', () => {
+    ws.pong()
   })
 
   ws.on('message', function incoming(message: string) {
