@@ -4,7 +4,6 @@ type Message = DatalessMessage | TimeupdateMessage | IdentifyMessage | CreateRoo
 type ActionName = DatalessAction | TimeupdateAction | IdentifyAction | CreateRoomAction | JoinRoomAction | MessageAction
 
 type DatalessAction = 'get-room-list' | 'play' | 'pause'
-type DatalessData = undefined | null
 interface DatalessMessage {
   action: DatalessAction
 }
@@ -96,6 +95,18 @@ class Room {
     this.id = roominc++;
     this.pathname = pathname;
     this.hostId = hostId;
+    this.clients = [];
+  }
+
+  add(client: Client) {
+    this.clients.push(client);
+  }
+
+  remove(client: Client) {
+    const index = this.clients.indexOf(client, 0);
+    if (index > -1) {
+      this.clients.splice(index, 1);
+    }
   }
 
   send(action: string, data?: any, ignoreClient?: Client) {
