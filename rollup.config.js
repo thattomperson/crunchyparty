@@ -4,6 +4,7 @@ import json from '@rollup/plugin-json';
 import pluginSvelte from 'rollup-plugin-svelte';
 import replace from '@rollup/plugin-replace';
 import postcss from 'rollup-plugin-postcss';
+import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
 import pkg from './package.json';
 
@@ -12,10 +13,10 @@ const dev = mode === 'development';
 const socketServerUrl = dev ? 'ws://localhost:5000' : 'wss://crunchyparty.herokuapp.com' 
 const apiServerUrl = dev ? 'http://localhost:5000' : 'https://crunchyparty.herokuapp.com/api' 
 
-export default {
-    input: './src',
+export default [{
+    input: './client',
     output: {
-        dir: './public/',
+        dir: './dist/public/',
         format: 'iife'
     },
     plugins: [
@@ -36,11 +37,20 @@ export default {
             use: [
                 ['sass', {
                     includePaths: [
-                        './src',
+                        './client',
                         './node_modules'
                     ]
                 }]
             ]
         })
     ]
-}
+}, {
+    input: './server/index.ts',
+    output: {
+        dir: './dist/',
+        format: 'cjs'
+    },
+    plugins: [
+        typescript()
+    ]
+}]

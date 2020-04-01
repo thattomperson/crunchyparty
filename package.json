@@ -2,14 +2,10 @@
     "name": "crunchyparty",
     "version": "0.0.1",
     "scripts": {
-        "watch:client": "rollup -cw",
-        "watch:server": "tsc --watch",
-        "watch": "run-p watch:server watch:client",
-        "postbuild": "marked readme.md > public/index.html",
-        "build:client": "rollup -c",
-        "build:server": "tsc",
-        "build": "run-p build:client build:server",
-        "start": "node index.js",
+        "watch": "rollup -cw",
+        "build": "rollup -c",
+        "postbuild": "marked readme.md > dist/public/index.html",
+        "start": "node dist/index.js",
         "logs": "heroku logs --tail --app crunchyparty"
     },
     "engines": {
@@ -24,6 +20,7 @@
         "@rollup/plugin-json": "^4.0.2",
         "@rollup/plugin-node-resolve": "^7.1.1",
         "@rollup/plugin-replace": "^2.3.1",
+        "@rollup/plugin-typescript": "^4.0.0",
         "@types/node": "^13.9.8",
         "@types/ws": "^7.2.3",
         "crypto-js": "^4.0.0",

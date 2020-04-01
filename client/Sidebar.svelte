@@ -1,4 +1,4 @@
-<main class="flex">
+<main class="flex" style="--sidebar-width: {sidebarWidth}px">
     {#if roomId}
     <div>
         <TopAppBar variant="static" dense>
@@ -10,9 +10,9 @@
                 {#if fullscreen}
                     <IconButton 
                         class="material-icons"
-                        aria-label="Fullscreen"
+                        aria-label="Exit fullscreen"
                         on:click={() => fullscreen = false}
-                    >fullscreen</IconButton>
+                    >fullscreen_exit</IconButton>
                 {:else}
                     <IconButton
                         class="material-icons"
@@ -150,7 +150,7 @@ main {
     top: 0;
     bottom: 0;
     right: 0;
-    width: 300px;
+    width: var(--sidebar-width);
     background: #4b4b4b;
     box-sizing: border-box;
     z-index: 200;
@@ -171,6 +171,8 @@ let userId = null;
 let fullscreen = false;
 let joiningRoom = false;
 let host = false;
+
+let sidebarWidth = 300;
 
 let systeminc = 0;
 
@@ -193,12 +195,14 @@ setInterval(() => {
 $: video_player.style.position =  fullscreen ? 'fixed' : '';
 $: video_player.style.zIndex =  fullscreen ? '200' : '';
 $: video_player.style.left =  fullscreen ? '0' : '';
-$: video_player.style.right =  fullscreen ? '300px' : '';
+$: video_player.style.right =  fullscreen ? `${sidebarWidth}px` : '';
 $: video_player.style.width =  fullscreen ? 'auto' : '';
 $: video_player.style.height =  fullscreen ? 'auto' : '';
 $: video_player.style.top =  fullscreen ? '0' : '';
 $: video_player.style.bottom =  fullscreen ? '0' : '';
 $: video_player.style.background =  fullscreen ? 'black' : '';
+
+$: document.body.style.marginRight = `${sidebarWidth}px`
 
 // var requestFullScreen = document.documentElement.requestFullscreen || document.documentElement.mozRequestFullScreen || document.documentElement.webkitRequestFullScreen || document.documentElement.msRequestFullscreen;
 // var cancelFullScreen = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
