@@ -209,14 +209,18 @@ $: background.style.display = fullscreen ? 'flex' : '';
 $: background.style.zIndex = fullscreen ? '2000' : '';
 $: background.style.justifyContent = fullscreen ? 'center' : '';
 $: background.style.flexDirection = fullscreen ? 'column' : '';
+
 $: video_wrapper.style.position =  fullscreen ? 'relative' : '';
 $: video_wrapper.style.zIndex =  fullscreen ? '200' : '';
 $: video_wrapper.style.paddingBottom =  fullscreen ? '56.25%' : '';
+$: video_wrapper.style.height =  fullscreen ? 'auto' : '';
+
 $: video_frame.style.position = fullscreen ? 'absolute' : '';
 $: video_frame.style.top = fullscreen ? '0' : '';
 $: video_frame.style.left = fullscreen ? '0' : '';
 $: video_frame.style.width = fullscreen ? '100%' : '';
 $: video_frame.style.height = fullscreen ? '100%' : '';
+
 
 // $: video_player.style.right =  fullscreen ? `${sidebarWidth}px` : '';
 // $: video_player.style.width =  fullscreen ? 'auto' : '';
