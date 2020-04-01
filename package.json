@@ -1,7 +1,8 @@
 {
-    "name": "crunchyparty-server",
+    "name": "crunchyparty",
     "version": "0.0.1",
     "scripts": {
+        "build": "rollup -c",
         "start": "node index.js"
     },
     "engines": {
@@ -10,5 +11,20 @@
     "dependencies": {
         "express": "^4.17.1",
         "ws": "^7.2.3"
+    },
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^11.0.2",
+        "@rollup/plugin-json": "^4.0.2",
+        "@rollup/plugin-node-resolve": "^7.1.1",
+        "@rollup/plugin-replace": "^2.3.1",
+        "crypto-js": "^4.0.0",
+        "identicon.js": "^2.3.3",
+        "node-sass": "^4.13.1",
+        "rollup": "^2.3.2",
+        "rollup-plugin-postcss": "^2.5.0",
+        "rollup-plugin-svelte": "^5.2.0",
+        "rollup-plugin-terser": "^5.3.0",
+        "svelte": "^3.20.1",
+        "svelte-material-ui": "^1.0.0-beta.20"
     }
 }
