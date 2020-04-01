@@ -6,6 +6,27 @@ var port = process.env.PORT || 5000
 
 app.use(express.static(__dirname + "/public"))
 
+const _ = {
+  is(type, obj) {
+    var clas = Object.prototype.toString.call(obj).slice(8, -1);
+    return obj !== undefined && obj !== null && clas === type;
+  },
+
+  only(keys, arr) {
+    if (_.is('Object', arr)) {
+      arr = Object.values(arr)
+    }
+
+    return arr.map(v => {
+      let o = {};
+      keys.forEach(k => {
+        o[k] = v[k]
+      })
+      return o
+    })
+  } 
+}
+
 var server = http.createServer(app)
 server.listen(port)
 
@@ -13,81 +34,50 @@ console.log("http server listening on %d", port)
 
 var wss = new WebSocketServer({server: server})
 
-let clients = new Map()
-let rooms = new Map()
+let clients = {}
+let rooms = {}
 
 let userinc = 1;
 let roominc = 1;
 let messageinc = 1;
 
-function getRoomList(userId) {
-  let roomList = []
-  rooms.forEach(k => roomList.push(k))
+function send(clientId, action, data) {
+  if (_.is('Object', clientId)) {
+    clientId = clientId.id
+  }
 
-  let c = clients.get(userId)
-  c.ws.send(JSON.stringify({
-    action: 'room-list',
-    data: {roomList},
-  }))
+  clients[clientId].ws.send(JSON.stringify({ action, data }))
 }
 
-function joinRoom(userId, roomId) {
-  console.log(`user ${userId} joining room ${roomId}`)
-  let c = clients.get(userId)
-  c.room = roomId
-  clients.set(userId, c)
+function getRoomList(userId) {
+  send(userId, 'room-list', {
+    roomList: _.only(['id', 'pathname', 'hostId'], rooms)
+  })
+}
 
-  let r = rooms.get(roomId)
-  let userList = [];
+function joinRoom(id, roomId) {
+  clients[id].room = rooms[roomId]
 
-  r.clients.forEach(clientId => {
-    userList.push({
-      username: clients.get(clientId).username,
-      userId: clientId,
+  send(id, 'join-room', {
+    roomId,
+    hostId: rooms[roomId].hostId,
+    userList: _.only(['id', 'username'], rooms[roomId].clients)
+  })
+
+  rooms[roomId].clients.forEach(({ id: clientId }) => {
+    send(clientId, 'user-joined', {
+      username: clients[id].username,
+      id
     })
   })
 
-  c.ws.send(JSON.stringify({
-    action: 'join-room',
-    data: {
-      roomId,
-      hostId: r.hostId,
-      userList
-    }
-  }))
-
-  r.clients.forEach(clientId => {
-    let u = clients.get(clientId)
-    u.ws.send(JSON.stringify({
-      action: 'user-joined',
-      data: {
-        username: c.username,
-        userId,
-      }
-    }))
-  })
-
-  r.clients.add(userId)
-  rooms.set(roomId, r)
+  rooms[roomId].clients.push(clients[id])
 }
 
-function sendMessage(fromUserId, message) {
-  console.log(`new message from ${fromUserId}`)
-  const messageId = messageinc++
-  const c = clients.get(fromUserId)
-  console.log(`sending to room ${c.room}`)
-  const r = rooms.get(c.room)
-  
-  r.clients.forEach(cid => {
-    console.log(`forwarding message to user ${cid}`)
-    clients.get(cid).ws.send(JSON.stringify({
-      action: 'message',
-      data: {
-        messageId: messageId,
-        fromId: fromUserId,
-        message 
-      }
-    }))
+function sendMessage(fromId, message) {
+  const id = messageinc++
+  clients[fromId].room.clients.forEach(client => {
+    send(client, 'message', {id, fromId, message})
   }) 
 }
 

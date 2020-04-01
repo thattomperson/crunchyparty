@@ -2,8 +2,13 @@
     "name": "crunchyparty",
     "version": "0.0.1",
     "scripts": {
+        "watch:client": "rollup -cw",
+        "watch:server": "tsc --watch index.ts",
+        "watch": "run-p watch:server watch:client",
         "prebuild": "marked readme.md > public/index.html",
-        "build": "rollup -c",
+        "build:client": "rollup -c",
+        "build:server": "tsc index.ts",
+        "build": "run-p build:client build:server",
         "start": "node index.js"
     },
     "engines": {
@@ -22,11 +27,13 @@
         "identicon.js": "^2.3.3",
         "marked": "^0.8.2",
         "node-sass": "^4.13.1",
+        "npm-run-all": "^4.1.5",
         "rollup": "^2.3.2",
         "rollup-plugin-postcss": "^2.5.0",
         "rollup-plugin-svelte": "^5.2.0",
         "rollup-plugin-terser": "^5.3.0",
         "svelte": "^3.20.1",
-        "svelte-material-ui": "^1.0.0-beta.20"
+        "svelte-material-ui": "^1.0.0-beta.20",
+        "typescript": "^3.9.0-dev.20200330"
     }
 }
