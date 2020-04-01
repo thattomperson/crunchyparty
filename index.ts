@@ -1,4 +1,4 @@
-import WebSocket from 'ws'
+import WebSocket, { Server } from 'ws'
 
 var http = require("http")
 var express = require("express")
@@ -33,7 +33,7 @@ server.listen(port)
 
 console.log("http server listening on %d", port)
 
-const wss = new WebSocket.Server({ server: server })
+const wss = new Server({ server: server })
 
 type Room = {
   id: number,
