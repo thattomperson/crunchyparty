@@ -172,7 +172,12 @@ function joinRoom(client, roomId) {
 
 function sendMessage(client: Client, message: string) {
   const id = messageinc++
-  client.room.send('message', { id, fromId: client.id, message })
+  client.room.send('message', {
+    id,
+    userId: client.id,
+    username: client.username,
+    message
+  })
 }
 
 function timeUpdate(client: Client, time: number) {

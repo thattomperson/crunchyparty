@@ -32,8 +32,8 @@
             <div class="message-cont {message.fromId === userId ? 'self' : ''}">
                 <div class="message">
                     <div class="user-info">
-                        <img src="data:image/png;base64,{userList.get(message.fromId).identicon}" />
-                        <span class="username">{userList.get(message.fromId).username}</span>
+                        <img alt="{message.username}" src="data:image/png;base64,{identicon(message.username)}" />
+                        <span class="username">{message.username}</span>
                     </div>
                     <span class="message-text">{message.message}</span>
                 </div>
@@ -174,8 +174,6 @@ let host = false;
 
 let systeminc = 0;
 
-const userList = new Map();
-
 let username = 'unknown';
 if (document && document.querySelector && document.querySelector('.username a')) {
     username = document.querySelector('.username a').text.trim()
@@ -247,6 +245,16 @@ function sendMessage(event) {
     message = ""
 }
 
+const identicon = (() => {
+    let d = {};
+    return (...args) => {
+        let k = JSON.stringify(args)
+        return k[d] ? k[d] : k[d] = (new Identicon(md5(username).toString(), 26)).toString();
+    }
+})();
+
+    
+
 ws.onopen = () => {
     connected = true
 
@@ -280,31 +288,13 @@ ws.onopen = () => {
         switch (payload.action) {
             case 'identify':
                 userId = payload.data.userId
-                userList.set(userId, {
-                    userId,
-                    username,
-                    identicon: (new Identicon(md5(username).toString(), 26)).toString()
-                })
                 break;
             case 'join-room':
                 joiningRoom = false
                 roomId = payload.data.roomId
                 host = userId == payload.data.hostId
-                payload.data.userList.forEach(u => 
-                    userList.set(u.userId, {
-                        userId: u.userId,
-                        username: u.username,
-                        identicon: (new Identicon(md5(u.username).toString(), 26)).toString()
-                    })
-                )
                 break;
             case 'user-joined':
-                userList.set(payload.data.userId, {
-                    userId: payload.data.userId,
-                    username: payload.data.username,
-                    identicon: (new Identicon(md5(payload.data.username).toString(), 26)).toString()
-                })
-
                 messages = [...messages, {
                     messageId: `system-${systeminc++}`,
                     system: `${payload.data.username} joined`
