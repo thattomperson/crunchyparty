@@ -296,7 +296,7 @@ wss.on('close', function close() {
 
 
 function assertNever(x: never): never {
-  throw new Error("Unexpected object: " + x);
+  throw new Error("Unexpected object: " + JSON.stringify(x));
 }
 
 app.use(Sentry.Handlers.errorHandler());

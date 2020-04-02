@@ -290,7 +290,7 @@ ws.onopen = () => {
     connected = true
 
     ws.send(JSON.stringify({
-        action: 'identify',
+        action: 'identify-username',
         data: { username }
     }))
     
@@ -316,7 +316,7 @@ ws.onopen = () => {
         console.log(payload)
 
         switch (payload.action) {
-            case 'identify':
+            case 'identify-userid':
                 userId = payload.data.userId
                 break;
             case 'join-room':
