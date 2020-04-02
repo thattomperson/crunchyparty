@@ -1,8 +1,8 @@
 import WebSocket, { Server } from 'ws'
 import Sentry from '@sentry/node'
 
-type Message = DatalessMessage | TimeupdateMessage | IdentifyMessage | CreateRoomMessage | JoinRoomMessage | MessageMessage
-type ActionName = DatalessAction | TimeupdateAction | IdentifyAction | CreateRoomAction | JoinRoomAction | MessageAction
+type Message = DatalessMessage | TimeupdateMessage | IdentifyUsernameMessage | CreateRoomMessage | JoinRoomMessage | MessageMessage 
+type ActionName = DatalessAction | TimeupdateAction | IdentifyUsernameAction | CreateRoomAction | JoinRoomAction | MessageAction
 
 type DatalessAction = 'get-room-list' | 'play' | 'pause'
 interface DatalessMessage {
@@ -18,11 +18,19 @@ interface TimeupdateMessage {
   data: TimeupdateData
 }
 
-type IdentifyAction = 'identify'
-interface IdentifyMessage { 
-  action: IdentifyAction
+type IdentifyUsernameAction = 'identify-username'
+interface IdentifyUsernameMessage {
+  action: IdentifyUsernameAction
   data: {
     username: string
+  }
+}
+
+type IdentifyUserIDAction = 'identify-userid';
+interface IdentifyUserIDMessage {
+  action: IdentifyUserIDAction
+  data: {
+    id: number
   }
 }
 
@@ -48,6 +56,11 @@ interface MessageMessage {
   data: {
     message: string
   }
+}
+
+// https://github.com/DefinitelyTyped/DefinitelyTyped/issues/20780
+interface ExtWebSocket extends WebSocket {
+  isAlive: boolean;
 }
 
 
@@ -231,7 +244,7 @@ wss.on('connection', function connection(ws: WebSocket) {
     let payload: Message = JSON.parse(message)
 
     switch (payload.action) {
-      case 'identify':
+      case 'identify-username':
         client.username = payload.data.username
         break;
       case 'create-room': 
@@ -260,16 +273,19 @@ function heartbeat() {
 }
 
 wss.on('connection', function connection(ws) {
-  ws.isAlive = true;
+  const ews = ws as ExtWebSocket
+
+  ews.isAlive = true;
   ws.on('pong', heartbeat);
 });
 
 
 const interval = setInterval(function ping() {
   wss.clients.forEach((ws: WebSocket) => {
-    if (ws.isAlive === false) return ws.terminate();
+    const ews = ws as ExtWebSocket
+    if (ews.isAlive === false) return ws.terminate();
  
-    ws.isAlive = false;
+    ews.isAlive = false;
     ws.ping(() => {});
   });
 }, 30000);
