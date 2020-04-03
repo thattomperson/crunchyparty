@@ -14,7 +14,7 @@ const socketServerUrl = dev ? 'ws://localhost:5000' : 'wss://crunchyparty.heroku
 const apiServerUrl = dev ? 'http://localhost:5000' : 'https://crunchyparty.herokuapp.com/api'
 
 export default [{
-    input: './client',
+    input: './src/client',
     output: {
         dir: './dist/public/',
         format: 'iife'
@@ -47,7 +47,7 @@ export default [{
         })
     ]
 }, {
-    input: './server/index.ts',
+    input: './src/server/index.ts',
     output: {
         dir: './dist/',
         format: 'cjs'

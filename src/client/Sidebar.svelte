@@ -29,7 +29,7 @@
             {#if message.system} 
                 <div class="system-message">{message.system}</div>
             {:else}
-            <div class="message-cont {message.fromId === userId ? 'self' : ''}">
+            <div class="message-cont {message.userId === userId ? 'self' : ''}">
                 <div class="message">
                     <div class="user-info">
                         <img alt="{message.username}" src="data:image/png;base64,{identicon(message.username)}" />
