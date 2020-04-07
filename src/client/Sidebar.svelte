@@ -164,6 +164,7 @@ import IconButton from '@smui/icon-button';
 import Button, {Label} from '@smui/button'
 import Identicon from 'identicon.js'
 import md5 from 'crypto-js/md5'
+import { Socket } from '@ws/client'
 
 let connected = false
 let roomId = null;
@@ -221,58 +222,38 @@ $: video_frame.style.left = fullscreen ? '0' : '';
 $: video_frame.style.width = fullscreen ? '100%' : '';
 $: video_frame.style.height = fullscreen ? '100%' : '';
 
-
-// $: video_player.style.right =  fullscreen ? `${sidebarWidth}px` : '';
-// $: video_player.style.width =  fullscreen ? 'auto' : '';
-// $: video_player.style.height =  fullscreen ? 'auto' : '';
-// $: video_player.style.top =  fullscreen ? '0' : '';
-// $: video_player.style.bottom =  fullscreen ? '0' : '';
-// $: video_player.style.background =  fullscreen ? 'black' : '';
-
 $: document.body.style.marginRight = `${sidebarWidth}px`
 
-// var requestFullScreen = document.documentElement.requestFullscreen || document.documentElement.mozRequestFullScreen || document.documentElement.webkitRequestFullScreen || document.documentElement.msRequestFullscreen;
-// var cancelFullScreen = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
+const ws = new Socket(process.env.SOCKET_SERVER_URL)
 
-// $: fullscreen ? requestFullScreen.call(document.body) : cancelFullScreen.call(document)
-
-const ws = new WebSocket(process.env.SOCKET_SERVER_URL)
 let messages = []
 
+const sysmsg = (msg) => {
+    messages = [...messages, {
+        messageId: `system-${systeminc++}`,
+        system: msg
+    }];
+}
+
 function createRoom() {
-    ws.send(JSON.stringify({
-        action: 'create-room',
-        data: {
-            pathname: location.pathname
-        }
-    }))
+    ws.send('CreateRoom', {
+        pathname: location.pathname
+    })
 }
 
 function joinRoom(roomId) {
-    ws.send(JSON.stringify({
-        action: 'join-room',
-        data: { roomId }
-    }))
+    ws.send('JoinRoom', { roomId })
 }
 
 function showJoinList() {
     joiningRoom = true
-    ws.send(JSON.stringify({
-        action: 'get-room-list'
-    }))
+    ws.send('GetRoomList')
 }
 
 
 function sendMessage(event) {
     event.preventDefault()
-
-    ws.send(JSON.stringify({
-        action: 'message',
-        data: {
-            message
-        }
-    }))
-
+    ws.send('Message', { message })
     message = ""
 }
 
@@ -280,82 +261,62 @@ const identicon = (() => {
     let d = {};
     return (...args) => {
         let k = JSON.stringify(args)
-        return k[d] ? k[d] : k[d] = (new Identicon(md5(username).toString(), 26)).toString();
+        return d[k] ? d[k] : d[k] = (new Identicon(md5(username).toString(), 26)).toString();
     }
 })();
 
-    
-
-ws.onopen = () => {
+ws.on('open', () =>{
     connected = true
+    ws.send('IdentifyUsername', { username })
+    sysmsg(`connected`)
+})
+ws.on('close', () => {
+    connected = false
+    sysmsg(`disconnected`)
+})
 
-    ws.send(JSON.stringify({
-        action: 'identify-username',
-        data: { username }
-    }))
-    
-    let lasttime = 0;
-    let timeupdate = 0;
-    VILOS_PLAYERJS.on('timeupdate', (event) => {
-        if (host && (Math.abs(event.seconds - lasttime) > 1 || (timeupdate++ == 10))) {
-            timeupdate = 0;
-            ws.send(JSON.stringify({
-                action: 'timeupdate',
-                data: {time: event.seconds},
-            }))
-        }
-        lasttime = event.seconds;
-    });
-
-    VILOS_PLAYERJS.on('play', () => host && ws.send(JSON.stringify({action: 'play'})))
-    VILOS_PLAYERJS.on('pause', () => host && ws.send(JSON.stringify({action: 'pause'})))
-    
-    ws.onmessage = (message) => {
-        const payload = JSON.parse(message.data)
-
-        console.log(payload)
-
-        switch (payload.action) {
-            case 'identify-userid':
-                userId = payload.data.userId
-                break;
-            case 'join-room':
-                joiningRoom = false
-                roomId = payload.data.roomId
-                host = userId == payload.data.hostId
-                break;
-            case 'user-joined':
-                messages = [...messages, {
-                    messageId: `system-${systeminc++}`,
-                    system: `${payload.data.username} joined`
-                }];
-                break;
-            case 'message':
-                messages = [...messages, payload.data];
-                break;
-            case 'timeupdate':
-                VILOS_PLAYERJS.getCurrentTime(t => {
-                    if (Math.abs(t - payload.data.time) > 5) {
-                        VILOS_PLAYERJS.setCurrentTime(payload.data.time)
-                        messages = [...messages, {
-                            system: `Jumped to hosts time`
-                        }];
-                    }
-                })
-                break
-            case 'play':
-            case 'pause':
-                VILOS_PLAYERJS[payload.action]()
-                messages = [...messages, {
-                    messageId: `system-${systeminc++}`,
-                    system: `Host ${payload.action === 'play' ? 'played' : 'paused'}`
-                }];
-                break
-            case 'room-list':
-                roomList = payload.data.roomList
-                break
-        }
-
+let lasttime = 0;
+let timeupdate = 0;
+VILOS_PLAYERJS.on('timeupdate', (event) => {
+    if (host && (Math.abs(event.seconds - lasttime) > 1 || (timeupdate++ == 10))) {
+        timeupdate = 0;
+        ws.send('Timeupdate', {time: event.seconds})
     }
-}
+    lasttime = event.seconds;
+});
+
+VILOS_PLAYERJS.on('play', () => host && ws.send('Play'))
+VILOS_PLAYERJS.on('pause', () => host && ws.send('Pause'))
+
+ws.on('IdentifyUserID', data => userId = data.userId)
+ws.on('JoinRoom', data => {
+    joiningRoom = false
+    roomId = data.roomId
+    host = userId == data.hostId
+})
+ws.on('UserJoined', data => sysmsg(`${data.username} joined`))
+ws.on('Message', data => {
+    messages = [...messages, data];
+})
+ws.on('Timeupdate', ({ time }) => {
+    VILOS_PLAYERJS.getCurrentTime(t => {
+        if (Math.abs(t - time) > 5) {
+            VILOS_PLAYERJS.setCurrentTime(data.time)
+            sysmsg('Jumped to hosts time')
+        }
+    })
+})
+
+ws.on('Play', () => {
+    VILOS_PLAYERJS.play()
+    sysmsg('Host played')
+})
+ws.on('Pause', () => {
+    VILOS_PLAYERJS.pause()
+    sysmsg('Host paused')
+})
+
+ws.on('RoomList', data => {
+    roomList = data.roomList
+})
 </script>
