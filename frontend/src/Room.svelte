@@ -3,7 +3,7 @@
         <h1>StreamParty</h1>
     </header>
     <div class="messages" use:scroll={messageGroups}>
-        <Stack style="--space: .5rem">
+        <Stack style="--space: .5rem; height:100%; justify-content: flex-end;">
             {#each messageGroups as g}
             <div class="message-group {g.user == username ? 'me' : ''}">
                 <div class="info">
@@ -29,7 +29,7 @@
 
 <script>
 import { tick } from 'svelte';
-import Stack from './Stack.svelte'
+import { Stack } from './layout'
 
 let messageGroups = [
     {

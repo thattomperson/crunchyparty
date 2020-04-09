@@ -1,10 +1,11 @@
 <div class="sidebar">
-    <Lobby />
+    <Room />
 </div>
 
 
 <script>
     import Lobby from './Lobby.svelte'
+    import Room from './Room.svelte'
 </script>
 
 <style>
