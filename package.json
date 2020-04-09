@@ -1,59 +1,28 @@
 {
-    "name": "crunchyparty",
-    "version": "0.0.1",
-    "scripts": {
-        "watch": "webpack --mode development --watch",
-        "prebuild": "node packages/protoc-ws/index.js",
-        "build": "webpack --mode production",
-        "postbuild": "marked readme.md > dist/public/index.html",
-        "start": "node dist/index.js",
-        "logs": "heroku logs --tail --app crunchyparty"
-    },
-    "engines": {
-        "node": "^12"
-    },
-    "dependencies": {
-        "@material-ui/core": "^4.9.9",
-        "@sentry/node": "^5.15.4",
-        "@types/react": "^16.9.32",
-        "@types/react-dom": "^16.9.6",
-        "eventemitter3": "^4.0.0",
-        "express": "^4.17.1",
-        "react": "^16.13.1",
-        "react-dom": "^16.13.1",
-        "ws": "^7.2.3"
-    },
-    "devDependencies": {
-        "@rollup/plugin-commonjs": "^11.0.2",
-        "@rollup/plugin-json": "^4.0.2",
-        "@rollup/plugin-node-resolve": "^7.1.1",
-        "@rollup/plugin-replace": "^2.3.1",
-        "@rollup/plugin-typescript": "^4.0.0",
-        "@sentry/browser": "^5.15.4",
-        "@types/express": "^4.17.4",
-        "@types/node": "^13.9.8",
-        "@types/ws": "^7.2.3",
-        "crypto-js": "^4.0.0",
-        "fork-ts-checker-webpack-plugin": "^4.1.2",
-        "identicon.js": "^2.3.3",
-        "marked": "^0.8.2",
-        "node-sass": "^4.13.1",
-        "npm-run-all": "^4.1.5",
-        "rollup": "^2.3.2",
-        "rollup-plugin-browser-extension": "^1.0.0",
-        "rollup-plugin-chrome-extension": "^2.2.0",
-        "rollup-plugin-postcss": "^2.5.0",
-        "rollup-plugin-svelte": "^5.2.0",
-        "rollup-plugin-terser": "^5.3.0",
-        "rollup-plugin-zip": "^1.0.0",
-        "source-map-loader": "^0.2.4",
-        "svelte": "^3.20.1",
-        "svelte-material-ui": "^1.0.0-beta.20",
-        "ts-loader": "^6.2.2",
-        "typescript": "^3.9.0-dev.20200404",
-        "webpack": "^5.0.0-beta.13",
-        "webpack-cli": "^3.3.11",
-        "webpack-node-externals": "^1.7.2",
-        "webpack-plugin-replace": "^1.2.0"
-    }
+  "name": "@serverless/chat-app",
+  "version": "1.0.1",
+  "main": "./serverless.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "postinstall": "cd ./frontend && npm install",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --fix --cache"
+  },
+  "author": "Serverless, Inc.",
+  "license": "Apache",
+  "dependencies": {
+    "@serverless/aws-dynamodb": "^2.0.0",
+    "@serverless/core": "^1.0.0",
+    "@serverless/realtime-app": "^1.0.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "9.0.0",
+    "eslint": "5.6.0",
+    "eslint-config-prettier": "^3.6.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "prettier": "^1.15.3"
+  }
 }
