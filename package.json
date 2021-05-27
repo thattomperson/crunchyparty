@@ -14,7 +14,7 @@
     "dependencies": {
         "@sentry/node": "^5.15.4",
         "express": "^4.17.1",
-        "ws": "^7.2.3"
+        "ws": "^7.4.6"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^11.0.2",
